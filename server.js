@@ -14,8 +14,8 @@ app.use(express.json());
 
 // Configuration de la connexion MySQL avec variables d'environnement
 const db = mysql.createConnection({
-  host: process.env.MYSQL_HOST || 'localhost',
-  user: process.env.MYSQL_USER || 'root',
+  host: process.env.MYSQLHOST || 'localhost',
+  user: process.env.MYSQLUSER || 'root',
   password: process.env.MYSQL_PASSWORD || '2003',
   database: process.env.MYSQL_DATABASE || 'prajot'
 });
