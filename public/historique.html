@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Historique des Feux</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --secondary: #3b82f6;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --success: #22c55e;
+      --text-light: #6b7280;
+      --bg-light: #f8fafc;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background: var(--bg-light);
+      min-height: 100vh;
+    }
+    .header {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #fff;
+      padding: 1.5rem;
+      text-align: center;
+      position: relative;
+    }
+    .header h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.8rem;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+      overflow: hidden;
+    }
+    .card-header {
+      background-color: var(--bg-light);
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #eee;
+    }
+    .card-header h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.2rem;
+      color: var(--text-light);
+    }
+    .card-body {
+      padding: 1.5rem;
+    }
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text-light);
+    }
+    .form-control {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .btn:hover {
+      background: var(--secondary);
+    }
+    .table-responsive {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+    th {
+      background-color: var(--bg-light);
+      font-weight: 600;
+      color: var(--text-light);
+    }
+    tr:hover {
+      background-color: rgba(0,0,0,0.02);
+    }
+    .status {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: white;
+    }
+    .status-0 {
+      background-color: var(--danger);
+    }
+    .status-1 {
+      background-color: var(--warning);
+    }
+    .status-2 {
+      background-color: var(--success);
+    }
+    .status-initial {
+      background-color: var(--text-light);
+    }
+    .status-3 {
+      background-color: #fbbf24;
+    }
+    .status-unknown {
+      background-color: #9ca3af;
+    }
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 1.5rem;
+      gap: 1rem;
+    }
+    .page-info {
+      font-size: 0.875rem;
+      color: var(--text-light);
+    }
+    .nav-link {
+      display: inline-block;
+      margin-top: 1rem;
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .nav-link:hover {
+      text-decoration: underline;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 3rem 0;
+      color: var(--text-light);
+    }
+    .top-right {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+    }
+    .btn-link {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+    .btn-link:hover {
+      background: rgba(255,255,255,0.3);
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="top-right">
+      <a href="/" class="btn-link">Retour</a>
+    </div>
+    <h1>Historique des Changements d'État</h1>
+  </div>
+  
+  <div class="container">
+    <div class="card">
+      <div class="card-header">
+        <h2>Filtres</h2>
+      </div>
+      <div class="card-body">
+        <div class="filters">
+          <div class="form-group">
+            <label for="feuSelect">Feu</label>
+            <select id="feuSelect" class="form-control">
+              <option value="">Tous les feux</option>
+              <!-- Options ajoutées dynamiquement -->
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="dateDebut">Date de début</label>
+            <input type="date" id="dateDebut" class="form-control">
+          </div>
+          
+          <div class="form-group">
+            <label for="dateFin">Date de fin</label>
+            <input type="date" id="dateFin" class="form-control">
+          </div>
+          
+          <div class="form-group" style="display: flex; align-items: flex-end;">
+            <button id="btnFiltrer" class="btn">Filtrer</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <h2>Résultats</h2>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Feu</th>
+                <th>État précédent</th>
+                <th>État actuel</th>
+                <th>Date du changement</th>
+              </tr>
+            </thead>
+            <tbody id="historiqueTableBody">
+              <!-- Contenu ajouté dynamiquement -->
+            </tbody>
+          </table>
+        </div>
+        
+        <div id="emptyState" class="empty-state" style="display:none;">
+          <p>Aucun résultat trouvé pour les critères sélectionnés.</p>
+        </div>
+        
+        <div class="pagination">
+          <button id="btnPrecedent" class="btn">Précédent</button>
+          <span id="pageInfo" class="page-info">Page 1</span>
+          <button id="btnSuivant" class="btn">Suivant</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    let currentPage = 1;
+    const limit = 20;
+    let totalRecords = 0;
+    
+    // Les états et leurs labels
+    // Les états et leurs labels
+    const etatLabels = {
+      0: 'Rouge',
+      1: 'Orange',
+      2: 'Vert',
+      3: 'Jaune Clignotant'
+    };
+    
+    // Initialisation au chargement de la page
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialiser les dates (dernière semaine par défaut)
+      const today = new Date();
+      const lastWeek = new Date();
+      lastWeek.setDate(today.getDate() - 7);
+      
+      document.getElementById('dateDebut').valueAsDate = lastWeek;
+      document.getElementById('dateFin').valueAsDate = today;
+      
+      // Charger la liste des feux pour le filtre
+      fetch('/api/feux')
+        .then(response => response.json())
+        .then(data => {
+          const select = document.getElementById('feuSelect');
+          data.forEach(feu => {
+            const option = document.createElement('option');
+            option.value = feu.ID;
+            option.textContent = feu.nom || `Feu ${feu.ID}`;
+            select.appendChild(option);
+          });
+          
+          // Charger l'historique initial
+          loadHistorique();
+        })
+        .catch(error => {
+          console.error('Erreur lors du chargement des feux:', error);
+        });
+      
+      // Configurer les événements
+      document.getElementById('btnFiltrer').addEventListener('click', function() {
+        currentPage = 1;
+        loadHistorique();
+      });
+      
+      document.getElementById('btnPrecedent').addEventListener('click', function() {
+        if (currentPage > 1) {
+          currentPage--;
+          loadHistorique();
+        }
+      });
+      
+      document.getElementById('btnSuivant').addEventListener('click', function() {
+        currentPage++;
+        loadHistorique();
+      });
+    });
+    
+    // Fonction pour charger l'historique
+    function loadHistorique() {
+       
+      const feuId = document.getElementById('feuSelect').value;
+      const dateDebut = document.getElementById('dateDebut').value;
+      const dateFin = document.getElementById('dateFin').value;
+  
+        // Construire l'URL avec les paramètres CORRECTS
+        let url = `/api/historique?page=${currentPage}&limit=${limit}`;
+        if (feuId) url += `&feu_id=${feuId}`;  // Changer feuId en feu_id
+        if (dateDebut) url += `&dateDebut=${dateDebut}`;
+        if (dateFin) url += `&dateFin=${dateFin}`;
+        
+        console.log("URL appelée:", url);
+        
+        fetch(url)
+          .then(response => response.json())
+          .then(data => {
+            console.log("Données reçues:", data);
+            totalRecords = data.total;
+            displayHistorique(data.historique);
+            updatePagination();
+          })
+          .catch(error => {
+            console.error('Erreur lors du chargement de l\'historique:', error);
+          });
+}
+    
+    // Fonction pour afficher l'historique
+    function displayHistorique(historique) {
+  const tbody = document.getElementById('historiqueTableBody');
+  const emptyState = document.getElementById('emptyState');
+  
+  tbody.innerHTML = '';
+  
+  if (historique.length === 0) {
+    emptyState.style.display = 'block';
+    return;
+  }
+  
+  emptyState.style.display = 'none';
+  
+  // Assurez-vous que cette définition existe et inclut tous les états possibles
+  const etatLabels = {
+    0: 'Rouge',
+    1: 'Orange',
+    2: 'Vert',
+    3: 'Jaune Clignotant'  // Ajoutez l'état 3 si nécessaire
+  };
+  
+  historique.forEach(item => {
+    const tr = document.createElement('tr');
+    
+    // Formater l'état précédent
+    let etatPrecedentHtml;
+    if (item.etat_precedent === null) {
+      etatPrecedentHtml = '<span class="status status-initial">Initial</span>';
+    } else {
+      const label = etatLabels[item.etat_precedent] || `État ${item.etat_precedent}`;
+      etatPrecedentHtml = `<span class="status status-${item.etat_precedent}">${label}</span>`;
+    }
+    
+    // Formater l'état courant - AJOUT de la gestion des valeurs null
+    let etatCourantHtml;
+    if (item.etat_courant === null) {
+      etatCourantHtml = '<span class="status status-unknown">Inconnu</span>';
+    } else {
+      const etatCourantLabel = etatLabels[item.etat_courant] || `État ${item.etat_courant}`;
+      etatCourantHtml = `<span class="status status-${item.etat_courant}">${etatCourantLabel}</span>`;
+    }
+    
+    // Formater la date
+    const date = new Date(item.date_changement);
+    const formattedDate = date.toLocaleString('fr-FR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+    
+    tr.innerHTML = `
+      <td>${item.feu_nom || item.feu_id}</td>
+      <td>${etatPrecedentHtml}</td>
+      <td>${etatCourantHtml}</td>
+      <td>${formattedDate}</td>
+    `;
+    
+    tbody.appendChild(tr);
+  });
+}
+    // Fonction pour mettre à jour la pagination
+    function updatePagination() {
+      const totalPages = Math.ceil(totalRecords / limit) || 1;
+      const pageInfo = document.getElementById('pageInfo');
+      const btnPrecedent = document.getElementById('btnPrecedent');
+      const btnSuivant = document.getElementById('btnSuivant');
+      
+      pageInfo.textContent = `Page ${currentPage} sur ${totalPages}`;
+      btnPrecedent.disabled = currentPage <= 1;
+      btnSuivant.disabled = currentPage >= totalPages;
+      
+      // Ajouter des styles pour les boutons désactivés
+      if (currentPage <= 1) {
+        btnPrecedent.style.opacity = '0.5';
+        btnPrecedent.style.cursor = 'not-allowed';
+      } else {
+        btnPrecedent.style.opacity = '1';
+        btnPrecedent.style.cursor = 'pointer';
+      }
+      
+      if (currentPage >= totalPages) {
+        btnSuivant.style.opacity = '0.5';
+        btnSuivant.style.cursor = 'not-allowed';
+      } else {
+        btnSuivant.style.opacity = '1';
+        btnSuivant.style.cursor = 'pointer';
+      }
+    }
+  </script>
+</body>
+</html>

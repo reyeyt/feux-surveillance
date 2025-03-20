@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Surveillance Feux - Différents Types et États</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap"
+    rel="stylesheet"
+  >
+
+  <style>
+    :root {
+      --primary: #2563eb;
+      --secondary: #3b82f6;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --success: #22c55e;
+      --text-light: #6b7280;
+      --bg-light: #f8fafc;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Open Sans', sans-serif;
+      height: 100%;
+      background: var(--bg-light);
+      transition: background 0.3s, color 0.3s;
+    }
+
+    #loginScreen,
+    #app {
+      display: none;
+    }
+
+    .login-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      padding: 2rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      width: 320px;
+    }
+
+    .login-container h2 {
+      font-family: 'Montserrat', sans-serif;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .field {
+      margin-bottom: 1rem;
+    }
+
+    .field label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 0.95rem;
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 0.6rem;
+      border: none;
+      border-radius: 4px;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .header {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #fff;
+      padding: 1.5rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .header h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.8rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .top-left,
+    .top-right {
+      position: absolute;
+      top: 1rem;
+      z-index: 9999;
+      display: flex;
+      gap: 1rem;
+    }
+
+    .top-left {
+      left: 1rem;
+    }
+
+    .top-right {
+      right: 1rem;
+    }
+
+    .toggle-btn {
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .toggle-btn:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    #logoutBtn {
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    #logoutBtn:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    #mainContent {
+      max-width: 1400px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+    }
+
+    .map-container {
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      height: 600px;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    .panel {
+      background: #fff;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      min-height: 300px;
+    }
+
+    .details-header {
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--bg-light);
+    }
+
+    #detailsPlaceholder {
+      margin-top: 1rem;
+      color: var(--text-light);
+    }
+
+    #detailsView h3 {
+      margin-bottom: 1rem;
+    }
+
+    .light-status {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+      background: var(--bg-light);
+      padding: 1rem;
+      border-radius: 6px;
+    }
+
+    .indicator {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      margin-right: 1rem;
+    }
+
+    .info-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+    }
+
+    .info-item {
+      background: #f9fafb;
+      padding: 0.75rem;
+      border-radius: 6px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .label {
+      font-weight: 600;
+    }
+
+    @media(max-width:1024px) {
+      #mainContent {
+        grid-template-columns: 1fr;
+      }
+      .map-container {
+        height: 400px;
+      }
+    }
+
+    .leaflet-popup-content-wrapper {
+        border-radius: 12px; 
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        min-width: 250px;
+    }
+    
+    .popup-content {
+        font-family: 'Open Sans', sans-serif;
+    }
+    
+    .popup-content strong {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 1.1rem;
+        display: block;
+        margin-bottom: 1rem;
+    }
+    
+    .popup-info-item {
+        background: #f9fafb;
+        padding: 0.75rem;
+        border-radius: 6px;
+        margin: 0.5rem 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .popup-label {
+        font-weight: 600;
+        color: var(--text-light);
+    }
+    
+    .popup-btn {
+        background: var(--primary);
+        color: #fff;
+        border: none;
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        width: 100%;
+        margin-top: 1rem;
+        transition: background 0.3s;
+    }
+    
+    .popup-btn:hover {
+        background: var(--secondary);
+    }
+  </style>
+</head>
+<body>
+  <div id="loginScreen">
+    <div class="login-container">
+      <h2>Connexion</h2>
+      <div class="field">
+        <label>Utilisateur</label>
+        <input type="text" id="username" />
+      </div>
+      <div class="field">
+        <label>Mot de passe</label>
+        <input type="password" id="password" />
+      </div>
+      <button class="btn-login" id="loginBtn">Se Connecter</button>
+    </div>
+  </div>
+
+  <div id="app">
+    <div class="header">
+      <div class="top-left">
+        <button id="simToggle" class="toggle-btn">Simulation: ON</button>
+      </div>
+      <div class="top-right">
+        <a href="http://localhost:3000/historique.html" class="toggle-btn" style="text-decoration: none; display: inline-block;">Historique</a>
+        <button id="saveLogBtn" class="toggle-btn">Télécharger Logs</button>
+        <button id="logoutBtn">Déconnexion</button>
+      </div>
+      <h1>Surveillance des Feux</h1>
+    </div>
+
+    <div id="mainContent">
+      <div class="map-container">
+        <div id="map"></div>
+      </div>
+      <div class="panel">
+        <div class="details-header">
+          <h2>Détails Feu</h2>
+        </div>
+        <div id="detailsPlaceholder">Sélectionnez un feu sur la carte</div>
+        <div id="detailsView" style="display:none;">
+          <h3 id="lightName"></h3>
+          <div class="light-status">
+            <div class="indicator" id="lightIndicator"></div>
+            <div id="lightState"></div>
+          </div>
+          <div class="info-list">
+            <div class="info-item">
+              <span class="label">N° de Série</span>
+              <span class="value" id="serie"></span>
+            </div>
+            <div class="info-item">
+              <span class="label">Propriétaire</span>
+              <span class="value" id="owner"></span>
+            </div>
+            <div class="info-item">
+              <span class="label">Pays</span>
+              <span class="value" id="pays"></span>
+            </div>
+            <div class="info-item">
+              <span class="label">Tension Service</span>
+              <span class="value" id="tServ"></span>
+            </div>
+            <div class="info-item">
+              <span class="label">Tension Alim</span>
+              <span class="value" id="tAlim"></span>
+            </div>
+            <div class="info-item">
+              <span class="label">Luminosité</span>
+              <span class="value" id="lumi"></span>
+            </div>
+            <div class="info-item">
+              <span class="label">Temps de Fonction</span>
+              <span class="value" id="temps"></span>
+            </div>
+            <div class="info-item">
+              <span class="label">Autonomie</span>
+              <span class="value" id="auto"></span>
+            </div>
+            <div class="info-item">
+              <span class="label">Mode</span>
+              <span class="value" id="mode"></span>
+            </div>
+            <div class="info-item">
+              <span class="label">Cycle en cours</span>
+              <span class="value" id="cycleNum"></span>
+            </div>
+            <div class="info-item">
+              <span class="label">Table de cycle</span>
+              <span class="value" id="tableCycle"></span>
+            </div>
+            <div class="info-item">
+              <span class="label">Optique Haut</span>
+              <span class="value" id="oHaut"></span>
+            </div>
+            <div class="info-item">
+              <span class="label">Optique Centre</span>
+              <span class="value" id="oCentre"></span>
+            </div>
+            <div class="info-item">
+              <span class="label">Optique Bas</span>
+              <span class="value" id="oBas"></span>
+            </div>
+            <div class="info-item">
+              <span class="label">Position Géo</span>
+              <span class="value" id="posGeo"></span>
+            </div>
+            <div class="info-item">
+              <span class="label">Position Physique</span>
+              <span class="value" id="posPhy"></span>
+            </div>
+            <div class="info-item">
+              <span class="label">Radio</span>
+              <span class="value" id="radio"></span>
+            </div>
+            <div class="info-item">
+              <span class="label">Bluetooth</span>
+              <span class="value" id="ble"></span>
+            </div>
+            <div class="info-item">
+              <span class="label">Cycles</span>
+              <span class="value" id="lightCycles"></span>
+            </div>
+            <div class="info-item">
+              <span class="label">Dernier Changement</span>
+              <span class="value" id="lightChange"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    const usersDB = [
+      {username:"admin", password:"admin", role:"super", company:"admin"},
+      {username:"CompanyA", password:"pass", role:"user", company:"CompanyA"},
+      {username:"CompanyB", password:"pass", role:"user", company:"CompanyB"},
+      {username:"CompanyC", password:"pass", role:"user", company:"CompanyC"}
+    ];
+
+    let currentUser = null;
+    let map = null;
+    let simActive = true;
+    let selectedSignalId = null;
+    let logEntries = [];
+
+    const typeStates = {
+      "Tricolore": {
+        0: { label:"Rouge",        color:"#ef4444" },
+        1: { label:"Orange",       color:"#f59e0b" },
+        2: { label:"Vert",         color:"#22c55e" }
+      },
+      "Piéton + Cligno": {
+        0: { label:"Éteint",       color:"#6b7280" },        
+        1: { label:"Jaune Cligno", color:"#fbbf24" },
+        2: { label:"Rouge Piéton", color:"#ef4444" },
+        3: { label:"Vert Piéton",  color:"#22c55e" }
+      },
+      "Transport en commun": {
+        0: { label:"Stop",         color:"#ef4444" },
+        1: { label:"Go",           color:"#22c55e" }
+      }
+    };
+
+    const typeList = [
+      { name:"Tricolore" },
+      { name:"Piéton + Cligno" },
+      { name:"Transport en commun" }
+    ];
+
+    function generateRandomSignals(count) {
+      const owners = ["CompanyA","CompanyB","CompanyC"];
+      const countries = ["FR","BE","DE"];
+      const tensionsService = ["12V DC","24V DC","230V AC"];
+      const tensionsAlim = ["12V DC","24V DC","230V AC"];
+      const modes = ["Fixe","Clignotant","Clignotant Rapide","Alterné"];
+      const optiques = ["OK", "NOK"];
+      const centerLat = 44.8378;
+      const centerLng = -0.5792;
+      const signals = [];
+
+      for(let i = 0; i < count; i++){
+        const rType = typeList[Math.floor(Math.random()*typeList.length)];
+        const owner = owners[Math.floor(Math.random()*owners.length)];
+        const pays = countries[Math.floor(Math.random()*countries.length)];
+        const tServ = tensionsService[Math.floor(Math.random()*tensionsService.length)];
+        const tAlim = tensionsAlim[Math.floor(Math.random()*tensionsAlim.length)];
+        const mode = modes[Math.floor(Math.random()*modes.length)];
+        const cyc = 1 + Math.floor(Math.random()*5);
+        const tableC = 1 + Math.floor(Math.random()*2);
+        const lat = centerLat + (Math.random()-0.5)*0.06;
+        const lng = centerLng + (Math.random()-0.5)*0.06;
+        const oh = optiques[Math.floor(Math.random()*optiques.length)];
+        const oc = optiques[Math.floor(Math.random()*optiques.length)];
+        const ob = optiques[Math.floor(Math.random()*optiques.length)];
+        const statesForType = JSON.parse(JSON.stringify(typeStates[rType.name]));
+        const nStates = Object.keys(statesForType).length;
+        const initState = Math.floor(Math.random()*nStates);
+
+        signals.push({
+          id: "FeuRand" + String(i+1).padStart(3,"0"),
+          name: "Feu Aléatoire #" + (i+1),
+          type: rType.name,
+          owner: owner,
+          pays: pays,
+          tensionService: tServ,
+          tensionAlim: tAlim,
+          luminosite: (Math.floor(Math.random() * 3) === 0 ? 0 : 100) + "%",
+          tempsFonction: (50+Math.floor(Math.random()*150)) + "h",
+          autonomie: (5+Math.floor(Math.random()*25)) + "h",
+          mode: mode,
+          cycleEnCours: cyc,
+          tableCycle: tableC,
+          optiqueHaut: oh,
+          optiqueCentre: oc,
+          optiqueBas: ob,
+          lat: lat,
+          lng: lng,
+          posPhysique: "Emplacement " + (i+1),
+          radio: Math.random()<0.5,
+          bluetooth: Math.random()<0.5,
+          serie: "C" + Math.floor(1000 + Math.random()*9000),
+          currentState: initState,
+          states: statesForType,
+          lastChangeTime: new Date(),
+          cyclesCount: Math.floor(Math.random()*20)
+        });
+      }
+      return signals;
+    }
+
+    const signalsData = generateRandomSignals(12);
+
+    document.getElementById("loginBtn").addEventListener("click", (event) => {
+      event.preventDefault(); // Empêche le rechargement de la page
+      
+      const u = document.getElementById("username").value.trim();
+      const p = document.getElementById("password").value.trim();
+      
+      console.log("Tentative de connexion avec:", u, p);
+      console.log("Liste des utilisateurs:", usersDB);
+      
+      const found = usersDB.find(x => {
+        console.log(`Comparaison avec ${x.username}/${x.password}: égal à ${u}/${p}?`, 
+                    x.username === u, x.password === p);
+        return x.username === u && x.password === p;
+      });
+      
+      if(found){
+        console.log("Utilisateur trouvé:", found);
+        currentUser = found;
+        document.getElementById("loginScreen").style.display = "none";
+        document.getElementById("app").style.display = "block";
+        initMap();
+        createMarkersForUser();
+      } else {
+        console.log("Échec d'authentification - Aucun utilisateur correspondant");
+        alert("Identifiants invalides");
+      }
+    });
+
+    document.getElementById("simToggle").addEventListener("click", () => {
+      simActive = !simActive;
+      document.getElementById("simToggle").textContent = simActive ? "Simulation: ON" : "Simulation: OFF";
+    });
+
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      currentUser = null;
+      signalsData.forEach(s => {
+        if(s.marker){
+          s.marker.remove();
+          s.marker = null;
+        }
+      });
+      document.getElementById("app").style.display = "none";
+      document.getElementById("loginScreen").style.display = "block";
+    });
+
+    document.getElementById("app").style.display = "none";
+    document.getElementById("loginScreen").style.display = "block";
+
+    setInterval(cycleAll, 5000);
+
+    function initMap(){
+      map = L.map("map").setView([44.8378, -0.5792], 13);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+      }).addTo(map);
+    }
+
+    function filterByUser(){
+      if(!currentUser) return [];
+      if(currentUser.role === "super") return signalsData;
+      return signalsData.filter(s => s.owner === currentUser.company);
+    }
+
+    function createMarkersForUser(){
+      filterByUser().forEach(sig => {
+        if(!sig.marker){
+          createMarker(sig);
+        }
+      });
+    }
+
+    function createMarker(sig){
+      const iconColor = sig.states[sig.currentState].color;
+      const icon = L.divIcon({
+        className: "custom",
+        html: `<div style="width:30px;height:30px;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 4px rgba(0,0,0,0.3);background:${iconColor};"></div>`,
+        iconSize: [30,30],
+        iconAnchor: [15,15]
+      });
+      sig.marker = L.marker([sig.lat, sig.lng], { icon }).addTo(map);
+      updatePopup(sig);
+    }
+
+    function updatePopup(sig){
+        const st = sig.states[sig.currentState].label;
+        const html = `
+          <div class="popup-content">
+            <strong>${sig.name}</strong>
+            <div class="popup-info-item">
+              <span class="popup-label">Type</span>
+              <span>${sig.type}</span>
+            </div>
+            <div class="popup-info-item">
+              <span class="popup-label">Propriétaire</span>
+              <span>${sig.owner}</span>
+            </div>
+            <div class="popup-info-item">
+              <span class="popup-label">État</span>
+              <span style="color: ${sig.states[sig.currentState].color}; font-weight: bold;">
+                ${st}
+              </span>
+            </div>
+            <button class="popup-btn" onclick="showDetails('${sig.id}')">
+              Voir détails
+            </button>
+          </div>
+        `;
+        if(sig.marker.getPopup()){
+          sig.marker.setPopupContent(html);
+        } else {
+          sig.marker.bindPopup(html);
+        }
+      }
+
+    function showDetails(id){
+      selectedSignalId = id;
+      const sig = filterByUser().find(s => s.id === id);
+      if(!sig) return;
+      document.getElementById("detailsPlaceholder").style.display = "none";
+      document.getElementById("detailsView").style.display = "block";
+      document.getElementById("lightName").textContent = sig.name;
+      document.getElementById("lightIndicator").style.backgroundColor = sig.states[sig.currentState].color;
+      document.getElementById("lightState").textContent = "État: " + sig.states[sig.currentState].label;
+      document.getElementById("serie").textContent = sig.serie;
+      document.getElementById("owner").textContent = sig.owner;
+      document.getElementById("pays").textContent = sig.pays;
+      document.getElementById("tServ").textContent = sig.tensionService;
+      document.getElementById("tAlim").textContent = sig.tensionAlim;
+      document.getElementById("lumi").textContent = sig.luminosite;
+      document.getElementById("temps").textContent = sig.tempsFonction;
+      document.getElementById("auto").textContent = sig.autonomie;
+      document.getElementById("mode").textContent = sig.mode;
+      document.getElementById("cycleNum").textContent = sig.cycleEnCours;
+      document.getElementById("tableCycle").textContent = sig.tableCycle;
+      document.getElementById("oHaut").textContent = sig.optiqueHaut;
+      document.getElementById("oCentre").textContent = sig.optiqueCentre;
+      document.getElementById("oBas").textContent = sig.optiqueBas;
+      document.getElementById("posGeo").textContent = `[${sig.lat.toFixed(4)}, ${sig.lng.toFixed(4)}]`;
+      document.getElementById("posPhy").textContent = sig.posPhysique;
+      document.getElementById("radio").textContent = sig.radio ? "Oui" : "Non";
+      document.getElementById("ble").textContent = sig.bluetooth ? "Oui" : "Non";
+      document.getElementById("lightCycles").textContent = sig.cyclesCount;
+      document.getElementById("lightChange").textContent = formatDate(sig.lastChangeTime);
+      map.closePopup();
+    }
+
+    function formatDate(d){
+      if(!d) return "";
+      const hh = String(d.getHours()).padStart(2,"0");
+      const mm = String(d.getMinutes()).padStart(2,"0");
+      const ss = String(d.getSeconds()).padStart(2,"0");
+      return `${hh}:${mm}:${ss}`;
+    }
+
+    function cycleAll(){
+      if(!simActive) return;
+      filterByUser().forEach(sig => {
+        const c = Object.keys(sig.states).length;
+        const oldLabel = sig.states[sig.currentState].label;
+        sig.currentState = (sig.currentState + 1) % c;
+        sig.cyclesCount++;
+        sig.lastChangeTime = new Date();
+        const newLabel = sig.states[sig.currentState].label;
+        const color = sig.states[sig.currentState].color;
+        const ic = L.divIcon({
+          className: "custom",
+          html: `<div style="width:30px;height:30px;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 4px rgba(0,0,0,0.3);background:${color};"></div>`,
+          iconSize: [30,30],
+          iconAnchor: [15,15]
+        });
+        sig.marker.setIcon(ic);
+        updatePopup(sig);
+
+        const logEntry = `[${formatDate(sig.lastChangeTime)}] Feu ${sig.id} : ${oldLabel} => ${newLabel}`;
+        logEntries.push(logEntry);
+
+        if(document.getElementById("lightName").textContent === sig.name){
+          showDetails(sig.id);
+        }
+      });
+    }
+
+    function saveLogToFile(){
+        if(!logEntries.length) return alert("Aucun log disponible");
+        const formattedLogs = logEntries.map(entry => entry.replace(/\n/g, ' '));
+        const blob = new Blob([formattedLogs.join("\n")], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "logs_feux.txt";
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    document.getElementById("saveLogBtn").addEventListener("click", saveLogToFile);
+  </script>
+</body>
+</html>
