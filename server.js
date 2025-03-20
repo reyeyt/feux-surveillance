@@ -12,12 +12,12 @@ const io = socketIo(server);
 // Pour parser le JSON
 app.use(express.json());
 
-// Configuration de la connexion MySQL avec variables d'environnement
-const db = mysql.createConnection({
-  host: process.env.MYSQLHOST || 'localhost',
-  user: process.env.MYSQLUSER || 'root',
-  password: process.env.MYSQL_PASSWORD || '2003',
-  database: process.env.MYSQL_DATABASE || 'prajot'
+// Configuration de la connexion MySQL avec URL
+const db = mysql.createConnection(process.env.MYSQL_PUBLIC_URL || {
+  host: 'localhost',
+  user: 'root',
+  password: '2003',
+  database: 'prajot'
 });
 db.connect((err) => {
   if (err) {
