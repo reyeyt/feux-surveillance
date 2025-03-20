@@ -3,7 +3,7 @@ const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 const mqtt = require('mqtt');
-const mysql = require('mysql');
+const mysql = require('mysql2');
 
 const app = express();
 const server = http.createServer(app);
