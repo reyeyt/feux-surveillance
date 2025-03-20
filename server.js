@@ -12,14 +12,13 @@ const io = socketIo(server);
 // Pour parser le JSON
 app.use(express.json());
 
-// Configuration de la connexion MySQL
+// Configuration de la connexion MySQL avec variables d'environnement
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '2003',
-  database: 'prajot'
+  host: process.env.MYSQLHOST || 'localhost',
+  user: process.env.MYSQLUSER || 'root',
+  password: process.env.MYSQLPASSWORD || '2003',
+  database: process.env.MYSQLDATABASE || 'prajot'
 });
-
 db.connect((err) => {
   if (err) {
     console.error("Erreur DB :", err);
