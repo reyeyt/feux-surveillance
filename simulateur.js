@@ -1,6 +1,6 @@
 // simulate_mcu.js
 const mqtt = require('mqtt');
-const mqttClient = mqtt.connect('mqtt://broker.hivemq.com:1883');
+const client = mqtt.connect('mqtt://broker.hivemq.com:1883');
 
 // Définition des types de feux et de leurs états possibles
 const typeStates = {
