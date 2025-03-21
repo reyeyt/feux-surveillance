@@ -21,6 +21,10 @@
       --success: #22c55e;
       --text-light: #6b7280;
       --bg-light: #f8fafc;
+      --text-dark: #e2e8f0;
+      --bg-dark: #1e293b;
+      --panel-light: #ffffff;
+      --panel-dark: #334155;
     }
 
     * {
@@ -34,6 +38,11 @@
       height: 100%;
       background: var(--bg-light);
       transition: background 0.3s, color 0.3s;
+    }
+
+    body.dark-mode {
+      background: var(--bg-dark);
+      color: var(--text-dark);
     }
 
     #loginScreen,
@@ -51,6 +60,12 @@
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
       border-radius: 8px;
       width: 320px;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body.dark-mode .login-container {
+      background: var(--panel-dark);
+      color: var(--text-dark);
     }
 
     .login-container h2 {
@@ -75,6 +90,14 @@
       border: 1px solid #ccc;
       border-radius: 4px;
       font-size: 0.95rem;
+      transition: border-color 0.3s;
+      background: white;
+    }
+
+    body.dark-mode .field input {
+      background: #475569;
+      color: white;
+      border-color: #64748b;
     }
 
     .btn-login {
@@ -87,6 +110,12 @@
       font-weight: 600;
       cursor: pointer;
       font-size: 1rem;
+      transition: background 0.3s;
+    }
+
+    .btn-login:hover {
+      background: var(--secondary);
+      transform: translateY(-2px);
     }
 
     .header {
@@ -101,6 +130,12 @@
       font-family: 'Montserrat', sans-serif;
       font-size: 1.8rem;
       margin-bottom: 0.25rem;
+      animation: fadeIn 1s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .top-left,
@@ -128,10 +163,12 @@
       padding: 0.5rem 1rem;
       cursor: pointer;
       font-weight: 600;
+      transition: all 0.3s ease;
     }
 
     .toggle-btn:hover {
       background: rgba(255,255,255,0.3);
+      transform: translateY(-2px);
     }
 
     #logoutBtn {
@@ -142,10 +179,12 @@
       padding: 0.5rem 1rem;
       cursor: pointer;
       font-weight: 600;
+      transition: all 0.3s ease;
     }
 
     #logoutBtn:hover {
       background: rgba(255,255,255,0.3);
+      transform: translateY(-2px);
     }
 
     #mainContent {
@@ -163,6 +202,12 @@
       overflow: hidden;
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
       height: 600px;
+      transition: transform 0.3s ease;
+    }
+
+    .map-container:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 15px rgba(0,0,0,0.1);
     }
 
     #map {
@@ -171,22 +216,43 @@
     }
 
     .panel {
-      background: #fff;
+      background: var(--panel-light);
       border-radius: 12px;
       padding: 1.5rem;
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
       min-height: 300px;
+      transition: background 0.3s, color 0.3s, transform 0.3s ease;
+    }
+
+    .panel:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    }
+
+    body.dark-mode .panel {
+      background: var(--panel-dark);
+      color: var(--text-dark);
     }
 
     .details-header {
       margin-bottom: 1rem;
       padding-bottom: 0.5rem;
       border-bottom: 2px solid var(--bg-light);
+      transition: border-color 0.3s;
+    }
+
+    body.dark-mode .details-header {
+      border-bottom: 2px solid #475569;
     }
 
     #detailsPlaceholder {
       margin-top: 1rem;
       color: var(--text-light);
+      transition: color 0.3s;
+    }
+
+    body.dark-mode #detailsPlaceholder {
+      color: #94a3b8;
     }
 
     #detailsView h3 {
@@ -200,6 +266,11 @@
       background: var(--bg-light);
       padding: 1rem;
       border-radius: 6px;
+      transition: background 0.3s;
+    }
+
+    body.dark-mode .light-status {
+      background: #475569;
     }
 
     .indicator {
@@ -207,6 +278,7 @@
       height: 18px;
       border-radius: 50%;
       margin-right: 1rem;
+      transition: transform 0.3s;
     }
 
     .info-list {
@@ -223,6 +295,16 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    .info-item:hover {
+      transform: translateX(5px);
+    }
+
+    body.dark-mode .info-item {
+      background: #475569;
+      color: var(--text-dark);
     }
 
     .label {
@@ -243,6 +325,7 @@
         padding: 1.5rem;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         min-width: 250px;
+        transition: transform 0.3s;
     }
     
     .popup-content {
@@ -264,11 +347,21 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+        transition: background 0.3s;
+    }
+    
+    body.dark-mode .popup-info-item {
+        background: #475569;
+        color: var(--text-dark);
     }
     
     .popup-label {
         font-weight: 600;
         color: var(--text-light);
+    }
+    
+    body.dark-mode .popup-label {
+        color: #94a3b8;
     }
     
     .popup-btn {
@@ -281,11 +374,64 @@
         font-weight: 600;
         width: 100%;
         margin-top: 1rem;
-        transition: background 0.3s;
+        transition: background 0.3s, transform 0.3s;
     }
     
     .popup-btn:hover {
         background: var(--secondary);
+        transform: translateY(-2px);
+    }
+
+    .dark-mode-toggle {
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .dark-mode-toggle:hover {
+      background: rgba(255,255,255,0.3);
+      transform: translateY(-2px);
+    }
+
+    .dark-mode-icon {
+      width: 1rem;
+      height: 1rem;
+    }
+
+    .marker-dot {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .pulse {
+      animation: pulse-animation 1s ease-out;
+    }
+
+    @keyframes pulse-animation {
+      0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+      }
+      70% {
+        transform: scale(1.1);
+        box-shadow: 0 0 0 15px rgba(255, 255, 255, 0);
+      }
+      100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+      }
     }
   </style>
 </head>
@@ -309,6 +455,9 @@
     <div class="header">
       <div class="top-left">
         <button id="simToggle" class="toggle-btn">Simulation: ON</button>
+        <button id="darkModeToggle" class="dark-mode-toggle">
+          <span id="themeIcon">☀️</span> <span id="themeText">Thème</span>
+        </button>
       </div>
       <div class="top-right">
         <a href="/historique.html" class="toggle-btn" style="text-decoration: none; display: inline-block;">Historique</a>
@@ -434,6 +583,7 @@
     let simActive = true;
     let selectedSignalId = null;
     let logEntries = [];
+    let darkMode = false;
 
     const typeStates = {
       "Tricolore": {
@@ -555,6 +705,12 @@
       document.getElementById("simToggle").textContent = simActive ? "Simulation: ON" : "Simulation: OFF";
     });
 
+    document.getElementById("darkModeToggle").addEventListener("click", () => {
+      darkMode = !darkMode;
+      document.body.classList.toggle("dark-mode", darkMode);
+      document.getElementById("themeIcon").textContent = darkMode ? "🌙" : "☀️";
+      document.getElementById("themeText").textContent = darkMode ? "Mode clair" : "Mode sombre";
+    });
 
     document.getElementById("logoutBtn").addEventListener("click", () => {
       currentUser = null;
@@ -598,7 +754,7 @@
       const iconColor = sig.states[sig.currentState].color;
       const icon = L.divIcon({
         className: "custom",
-        html: `<div style="width:30px;height:30px;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 4px rgba(0,0,0,0.3);background:${iconColor};"></div>`,
+        html: `<div class="marker-dot" style="background:${iconColor};"></div>`,
         iconSize: [30,30],
         iconAnchor: [15,15]
       });
@@ -689,7 +845,7 @@
         const color = sig.states[sig.currentState].color;
         const ic = L.divIcon({
           className: "custom",
-          html: `<div style="width:30px;height:30px;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 4px rgba(0,0,0,0.3);background:${color};"></div>`,
+          html: `<div class="marker-dot pulse" style="background:${color};"></div>`,
           iconSize: [30,30],
           iconAnchor: [15,15]
         });
@@ -702,6 +858,17 @@
         if(document.getElementById("lightName").textContent === sig.name){
           showDetails(sig.id);
         }
+        
+        // Retirer la classe pulse après l'animation
+        setTimeout(() => {
+          const newIcon = L.divIcon({
+            className: "custom",
+            html: `<div class="marker-dot" style="background:${color};"></div>`,
+            iconSize: [30,30],
+            iconAnchor: [15,15]
+          });
+          sig.marker.setIcon(newIcon);
+        }, 1000);
       });
     }
 
