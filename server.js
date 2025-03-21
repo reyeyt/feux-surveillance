@@ -12,12 +12,12 @@ const io = socketIo(server);
 // Pour parser le JSON
 app.use(express.json());
 
-const db = mysql.createConnection({
-  host: 'yamabiko.proxy.rlwy.net',
-  port: 57898,
+// Configuration de la connexion MySQL avec URL
+const db = mysql.createConnection(process.env.MYSQL_PUBLIC_URL || {
+  host: 'localhost',
   user: 'root',
-  password: 'LLBHljaebgFTNtPLxNaEfLnkZEmxrCMX',
-  database: 'railway'
+  password: '2003',
+  database: 'prajot'
 });
 db.connect((err) => {
   if (err) {
