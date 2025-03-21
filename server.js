@@ -29,7 +29,8 @@ db.connect((err) => {
 
 // Connexion au broker MQTT
 // Connexion au broker MQTT
-const mqttClient = mqtt.connect('mqtt://broker.hivemq.com:1883');
+// Dans server.js
+const mqttClient = mqtt.connect('mqtt://test.mosquitto.org:1883');
 
 mqttClient.on('connect', () => {
   console.log("Client MQTT connecté");
